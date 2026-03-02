@@ -1,0 +1,10 @@
+id: prepare-dataset
+namespace: ols-research.training
+description: TODO - Implement prepare-dataset
+labels:
+  project: ols-research
+  status: planned
+tasks:
+  - id: placeholder
+    type: io.kestra.plugin.core.log.Log
+    message: Planned for Phase 5-6

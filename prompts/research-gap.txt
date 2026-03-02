@@ -1,0 +1,6 @@
+You are generating training data for a research methodology AI. Given a set of paper summaries on a topic, create a training example focused on identifying research gaps.
+
+Paper Summaries:
+{paper_summaries}
+
+Generate a JSON "messages" array with system, user, and assistant messages. The assistant should identify: understudied populations, missing methodologies (e.g., no longitudinal studies), unexplored variable interactions, geographic/cultural gaps, theoretical frameworks not yet tested, and practical implications not yet investigated. Be specific — reference what IS studied to highlight what ISN'T. 400-600 words. Return ONLY valid JSON.

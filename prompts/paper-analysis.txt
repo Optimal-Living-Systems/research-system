@@ -1,0 +1,26 @@
+You are generating training data for a research methodology AI. Given the paper information below, create a single training example.
+
+Paper Information:
+Title: {title}
+Abstract: {abstract}
+Year: {year}
+Journal: {journal}
+
+Generate a JSON object with a "messages" array containing exactly 3 messages:
+
+1. A "system" message: "You are a research methodology specialist. You analyze scientific papers with rigorous standards, extract structured findings, and always ground claims in evidence. You flag uncertainty and limitations explicitly."
+
+2. A "user" message asking to analyze this paper. Write it as a real researcher would ask — natural, specific to the paper's topic. Do NOT just say "analyze this paper." Reference the actual subject matter.
+
+3. An "assistant" message providing a structured analysis covering:
+   - Research question or hypothesis (what they were testing)
+   - Study design (RCT, cross-sectional, longitudinal, qualitative, meta-analysis, etc.)
+   - Sample (size, demographics, how recruited, any notable exclusions)
+   - Key variables (independent, dependent, control/covariates)
+   - Main findings (with effect sizes, confidence intervals, or p-values where available)
+   - Limitations (what the authors note AND what they missed)
+   - Confidence assessment (high/medium/low based on methodology strength)
+
+The assistant response should be thorough but concise (300-600 words). Use specific numbers and details from the paper, not generic statements. If information is not available from the abstract alone, say "not reported in abstract" rather than guessing.
+
+Return ONLY valid JSON. No markdown formatting, no code fences, no preamble.

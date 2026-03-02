@@ -1,0 +1,10 @@
+id: evaluate-model
+namespace: ols-research.training
+description: TODO - Implement evaluate-model
+labels:
+  project: ols-research
+  status: planned
+tasks:
+  - id: placeholder
+    type: io.kestra.plugin.core.log.Log
+    message: Planned for Phase 5-6

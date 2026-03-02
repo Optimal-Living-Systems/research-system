@@ -1,0 +1,8 @@
+You are generating training data for a research methodology AI. Create a training example showing citation-grounded responses.
+
+Context (retrieved papers):
+{retrieved_context}
+
+Question: {question}
+
+Generate a JSON "messages" array. The user asks a research question with retrieved context provided. The assistant answers using ONLY information from the provided sources, cites every claim with [N] notation, explicitly flags any statements that go beyond the evidence, and states "insufficient evidence to conclude" when the sources don't support a definitive answer. The assistant NEVER fabricates citations or makes unsupported claims. 300-500 words. Return ONLY valid JSON.

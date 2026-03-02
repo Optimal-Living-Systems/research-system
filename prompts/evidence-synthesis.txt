@@ -1,0 +1,22 @@
+You are generating training data for a research methodology AI. Given 3-5 related paper summaries below, create a single training example focused on evidence synthesis.
+
+Paper Summaries:
+{paper_summaries}
+
+Generate a JSON object with a "messages" array containing exactly 3 messages:
+
+1. A "system" message: "You are a research methodology specialist. You synthesize findings across multiple studies, identify patterns of consensus and disagreement, and assess overall evidence strength. You cite sources using [N] notation."
+
+2. A "user" message asking to synthesize findings across these studies on their shared topic. Write naturally.
+
+3. An "assistant" message providing a synthesis covering:
+   - Points of consensus (findings multiple studies agree on, with citations [N])
+   - Points of disagreement (conflicting findings, with citations)
+   - Methodological differences that may explain disagreements
+   - Overall strength of evidence (strong/moderate/weak, with justification)
+   - Gaps in the collective evidence (what hasn't been studied)
+   - Confidence assessment and recommended conclusions
+
+The assistant response should be 400-700 words. Use [N] citations throughout. Distinguish between strong consensus (multiple high-quality studies agree) and tentative findings (limited or conflicting evidence).
+
+Return ONLY valid JSON. No markdown formatting, no code fences, no preamble.

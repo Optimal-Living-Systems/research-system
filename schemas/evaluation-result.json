@@ -1,0 +1,45 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Evaluation Result",
+  "description": "Schema for model evaluation results",
+  "type": "object",
+  "required": ["model_id", "eval_date", "metrics"],
+  "properties": {
+    "model_id": {
+      "type": "string",
+      "description": "Identifier for the model being evaluated"
+    },
+    "eval_date": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "test_set_size": {
+      "type": "integer",
+      "description": "Number of examples in the test set"
+    },
+    "metrics": {
+      "type": "object",
+      "properties": {
+        "paper_analysis_accuracy": {"type": "number", "minimum": 0, "maximum": 1},
+        "methodology_critique_validity": {"type": "number", "minimum": 0, "maximum": 1},
+        "synthesis_coherence": {"type": "number", "minimum": 0, "maximum": 1},
+        "tool_use_correctness": {"type": "number", "minimum": 0, "maximum": 1},
+        "citation_accuracy": {"type": "number", "minimum": 0, "maximum": 1},
+        "hallucination_rate": {"type": "number", "minimum": 0, "maximum": 1},
+        "cross_domain_quality": {"type": "number", "minimum": 0, "maximum": 1},
+        "structured_output_compliance": {"type": "number", "minimum": 0, "maximum": 1}
+      }
+    },
+    "training_config": {
+      "type": "object",
+      "properties": {
+        "base_model": {"type": "string"},
+        "lora_rank": {"type": "integer"},
+        "epochs": {"type": "integer"},
+        "learning_rate": {"type": "number"},
+        "training_examples": {"type": "integer"}
+      }
+    },
+    "notes": {"type": "string"}
+  }
+}

@@ -1,0 +1,10 @@
+id: monitor-quality
+namespace: ols-research.maintenance
+description: TODO - Implement monitor-quality
+labels:
+  project: ols-research
+  status: planned
+tasks:
+  - id: placeholder
+    type: io.kestra.plugin.core.log.Log
+    message: Planned for Phase 7+

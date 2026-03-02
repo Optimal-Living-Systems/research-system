@@ -1,0 +1,125 @@
+id: chunk-and-embed
+namespace: ols-research.processing
+description: |
+  Process collected papers: chunk by section, generate BGE-M3 embeddings,
+  and store in LanceDB domain collections.
+
+labels:
+  project: ols-research
+  component: processing
+
+inputs:
+  - id: domain
+    type: STRING
+    description: "Domain to process"
+    enum:
+      - psychology
+      - sociology
+      - environmentalism
+      - neuroscience
+  - id: input_file
+    type: STRING
+    description: "Path to JSONL file of collected papers"
+
+tasks:
+  - id: chunk-embed-store
+    type: io.kestra.plugin.scripts.python.Script
+    description: "Chunk papers, generate embeddings, upsert to LanceDB"
+    containerImage: python:3.11-slim
+    beforeCommands:
+      - pip install lancedb sentence-transformers pyarrow
+    script: |
+      import json
+      import os
+      import lancedb
+      from sentence_transformers import SentenceTransformer
+      import time
+
+      domain = "{{ inputs.domain }}"
+      input_path = "{{ inputs.input_file }}"
+      db_path = "/data/lancedb"
+
+      print(f"Processing {domain} papers from {input_path}")
+      print(f"LanceDB path: {db_path}")
+
+      # Load embedding model
+      print("Loading BGE-M3 embedding model...")
+      start = time.time()
+      model = SentenceTransformer("BAAI/bge-m3")
+      print(f"Model loaded in {time.time() - start:.1f}s")
+
+      # Read papers
+      papers = []
+      with open(input_path, 'r') as f:
+          for line in f:
+              line = line.strip()
+              if line:
+                  papers.append(json.loads(line))
+
+      print(f"Read {len(papers)} papers")
+
+      # Create chunks
+      chunks = []
+      for paper in papers:
+          title = paper.get("title", "")
+          abstract = paper.get("abstract", "")
+
+          if not title and not abstract:
+              continue
+
+          # Paper summary chunk (title + abstract)
+          summary_text = f"{title}. {abstract}" if abstract else title
+          chunk = {
+              "id": f"{paper.get('doi', paper.get('id', ''))}_summary",
+              "doi": paper.get("doi", ""),
+              "title": title,
+              "authors": ", ".join(paper.get("authors", [])[:10]),
+              "year": paper.get("year", 0) or 0,
+              "journal": paper.get("journal", ""),
+              "citation_count": paper.get("citation_count", 0) or 0,
+              "study_type": "unknown",
+              "chunk_type": "paper_summary",
+              "chunk_text": summary_text,
+              "domain": domain,
+              "keywords": paper.get("concepts", []),
+              "methodology_tags": [],
+              "open_access": paper.get("open_access", False),
+              "source": paper.get("source", "openalex"),
+              "collected_date": paper.get("collected_date", ""),
+              "quality_score": 0.0,
+          }
+          chunks.append(chunk)
+
+      print(f"Created {len(chunks)} chunks")
+
+      # Batch embed
+      print("Generating embeddings...")
+      batch_size = 32
+      texts = [c["chunk_text"] for c in chunks]
+
+      all_embeddings = []
+      for i in range(0, len(texts), batch_size):
+          batch = texts[i:i + batch_size]
+          embs = model.encode(batch, show_progress_bar=False)
+          all_embeddings.extend(embs)
+          if (i // batch_size) % 10 == 0:
+              print(f"  Embedded {min(i + batch_size, len(texts))}/{len(texts)}")
+
+      for i, chunk in enumerate(chunks):
+          chunk["vector"] = all_embeddings[i].tolist()
+
+      # Store in LanceDB
+      print(f"Storing in LanceDB collection: {domain}_papers")
+      db = lancedb.connect(db_path)
+      table_name = f"{domain}_papers"
+
+      if table_name in db.table_names():
+          table = db.open_table(table_name)
+          table.add(chunks)
+          print(f"  Added {len(chunks)} chunks to existing table")
+      else:
+          table = db.create_table(table_name, chunks)
+          print(f"  Created new table with {len(chunks)} chunks")
+
+      print(f"Total rows in {table_name}: {len(table)}")
+      print("Done.")

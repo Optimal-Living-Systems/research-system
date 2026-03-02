@@ -1,0 +1,89 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Paper Chunk",
+  "description": "Schema for paper chunks stored in LanceDB domain collections",
+  "type": "object",
+  "required": ["id", "title", "chunk_type", "chunk_text", "vector", "domain"],
+  "properties": {
+    "id": {
+      "type": "string",
+      "description": "Unique identifier (DOI + chunk_type suffix)"
+    },
+    "doi": {
+      "type": "string",
+      "description": "Digital Object Identifier"
+    },
+    "title": {
+      "type": "string",
+      "description": "Paper title"
+    },
+    "authors": {
+      "type": "string",
+      "description": "Comma-separated author names"
+    },
+    "year": {
+      "type": "integer",
+      "description": "Publication year"
+    },
+    "journal": {
+      "type": "string",
+      "description": "Journal name"
+    },
+    "citation_count": {
+      "type": "integer",
+      "description": "Citation count (updated periodically)"
+    },
+    "study_type": {
+      "type": "string",
+      "enum": ["rct", "observational", "meta-analysis", "qualitative", "review", "theoretical", "mixed-methods", "unknown"],
+      "description": "Study methodology type"
+    },
+    "chunk_type": {
+      "type": "string",
+      "enum": ["paper_summary", "introduction", "methods", "methods_design", "methods_measures", "methods_analysis", "results", "discussion", "discussion_interpretation", "discussion_limitations"],
+      "description": "Which section of the paper this chunk represents"
+    },
+    "chunk_text": {
+      "type": "string",
+      "description": "The actual text content of this chunk"
+    },
+    "vector": {
+      "type": "array",
+      "items": {"type": "number"},
+      "description": "BGE-M3 1024-dimensional embedding"
+    },
+    "domain": {
+      "type": "string",
+      "enum": ["psychology", "sociology", "environmentalism", "neuroscience"],
+      "description": "Primary domain classification"
+    },
+    "keywords": {
+      "type": "array",
+      "items": {"type": "string"},
+      "description": "Extracted keywords and concepts"
+    },
+    "methodology_tags": {
+      "type": "array",
+      "items": {"type": "string"},
+      "description": "Methodology descriptors (e.g., longitudinal, survey, n>1000)"
+    },
+    "open_access": {
+      "type": "boolean",
+      "description": "Whether full text is freely available"
+    },
+    "source": {
+      "type": "string",
+      "enum": ["openalex", "semantic_scholar", "pubmed", "preprint", "manual"],
+      "description": "Where this paper was collected from"
+    },
+    "collected_date": {
+      "type": "string",
+      "format": "date",
+      "description": "When this paper was added to the collection"
+    },
+    "quality_score": {
+      "type": "number",
+      "description": "Computed quality metric (citations/year + journal factor)"
+    }
+  }
+}

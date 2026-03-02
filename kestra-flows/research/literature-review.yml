@@ -1,0 +1,10 @@
+id: literature-review
+namespace: ols-research.research
+description: TODO - Implement literature-review
+labels:
+  project: ols-research
+  status: planned
+tasks:
+  - id: placeholder
+    type: io.kestra.plugin.core.log.Log
+    message: Planned for Phase 7

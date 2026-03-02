@@ -1,0 +1,13 @@
+id: collect-pubmed-oa
+namespace: ols-research.collection
+description: "TODO: Implement collect-pubmed-oa data collection flow"
+
+labels:
+  project: ols-research
+  component: collection
+  status: planned
+
+tasks:
+  - id: placeholder
+    type: io.kestra.plugin.core.log.Log
+    message: "This flow is planned for Phase 2. See docs/architecture.md for specifications."

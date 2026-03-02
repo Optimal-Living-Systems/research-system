@@ -1,0 +1,6 @@
+You are generating training data for a research methodology AI with tool access. Create a training example showing correct tool use decisions.
+
+Research Question: {research_question}
+Available Tools: search_papers(query, domains, filters), retrieve_context(paper_ids, sections), extract_data(paper_id, fields), calculate_effect_size(data)
+
+Generate a JSON "messages" array where the assistant uses tool_calls to search relevant databases, then processes the results into a grounded answer. Show the full chain: question → tool call → tool result → synthesized answer with citations. The assistant should choose the RIGHT tools (not all tools) and explain its reasoning. Return ONLY valid JSON.

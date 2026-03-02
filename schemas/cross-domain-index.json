@@ -1,0 +1,44 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Cross-Domain Concept",
+  "description": "Schema for the cross-domain concept index linking papers across research domains",
+  "type": "object",
+  "required": ["concept", "domains_present", "vector"],
+  "properties": {
+    "concept": {
+      "type": "string",
+      "description": "The concept name (e.g., 'intrinsic motivation')"
+    },
+    "domains_present": {
+      "type": "array",
+      "items": {"type": "string"},
+      "description": "Which domains this concept appears in"
+    },
+    "paper_ids_by_domain": {
+      "type": "object",
+      "description": "Map of domain → list of paper DOIs",
+      "additionalProperties": {
+        "type": "array",
+        "items": {"type": "string"}
+      }
+    },
+    "description": {
+      "type": "string",
+      "description": "How this concept manifests across domains"
+    },
+    "vector": {
+      "type": "array",
+      "items": {"type": "number"},
+      "description": "BGE-M3 embedding of the concept description"
+    },
+    "related_concepts": {
+      "type": "array",
+      "items": {"type": "string"},
+      "description": "Semantically linked concepts"
+    },
+    "ols_relevance": {
+      "type": "string",
+      "description": "Which OLS project(s) this concept serves"
+    }
+  }
+}

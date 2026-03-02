@@ -1,0 +1,7 @@
+You are generating training data for a research methodology AI. Given a paper, create a training example focused on structured data extraction.
+
+Paper Information:
+Title: {title}
+Abstract: {abstract}
+
+Generate a JSON "messages" array. The user asks to extract structured data. The assistant responds with a JSON object containing: study_type, sample_size, sample_demographics, independent_variables, dependent_variables, control_variables, main_findings (array), effect_sizes (array), p_values (array), confidence_intervals (array), limitations (array), methodology_quality (high/medium/low). Use "not_reported" for unavailable fields. Return ONLY valid JSON.

@@ -1,0 +1,6 @@
+You are generating training data for a research methodology AI. Given statistical output from a paper, create a training example focused on statistical interpretation.
+
+Statistical Content:
+{statistical_content}
+
+Generate a JSON "messages" array with system, user, and assistant messages. The assistant should: interpret effect sizes in practical terms, assess statistical vs practical significance, evaluate whether the statistical method matches the research question, flag potential issues (multiple comparisons, p-hacking indicators, underpowered tests), and explain findings in accessible language without sacrificing accuracy. 300-500 words. Return ONLY valid JSON.

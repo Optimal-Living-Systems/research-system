@@ -1,0 +1,13 @@
+id: index-to-lancedb
+namespace: ols-research.processing
+description: "TODO: Implement index-to-lancedb processing flow"
+
+labels:
+  project: ols-research
+  component: processing
+  status: planned
+
+tasks:
+  - id: placeholder
+    type: io.kestra.plugin.core.log.Log
+    message: "This flow is planned for Phase 2. See docs/architecture.md for specifications."

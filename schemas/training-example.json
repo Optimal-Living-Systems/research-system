@@ -1,0 +1,57 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Training Example",
+  "description": "Schema for fine-tuning training examples in ChatML format",
+  "type": "object",
+  "required": ["messages", "metadata"],
+  "properties": {
+    "messages": {
+      "type": "array",
+      "minItems": 3,
+      "items": {
+        "type": "object",
+        "required": ["role", "content"],
+        "properties": {
+          "role": {
+            "type": "string",
+            "enum": ["system", "user", "assistant", "tool"]
+          },
+          "content": {
+            "type": ["string", "null"]
+          },
+          "tool_calls": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "type": {"type": "string", "const": "function"},
+                "function": {
+                  "type": "object",
+                  "properties": {
+                    "name": {"type": "string"},
+                    "arguments": {"type": "string"}
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "metadata": {
+      "type": "object",
+      "properties": {
+        "skill": {
+          "type": "string",
+          "enum": ["paper_analysis", "methodology_critique", "evidence_synthesis", "research_gap", "statistical_reasoning", "structured_extraction", "tool_use", "citation_grounded"]
+        },
+        "source_doi": {"type": "string"},
+        "source_domain": {"type": "string"},
+        "generated_from": {"type": "string"},
+        "quality_score": {"type": "number", "minimum": 0, "maximum": 1},
+        "human_verified": {"type": "boolean"},
+        "generation_date": {"type": "string", "format": "date"}
+      }
+    }
+  }
+}

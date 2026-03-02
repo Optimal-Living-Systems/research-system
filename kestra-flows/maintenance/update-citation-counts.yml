@@ -1,0 +1,10 @@
+id: update-citation-counts
+namespace: ols-research.maintenance
+description: TODO - Implement update-citation-counts
+labels:
+  project: ols-research
+  status: planned
+tasks:
+  - id: placeholder
+    type: io.kestra.plugin.core.log.Log
+    message: Planned for Phase 7+

@@ -1,0 +1,193 @@
+id: collect-openalex
+namespace: ols-research.collection
+description: |
+  Pull papers from OpenAlex API for all 4 research domains.
+  Runs weekly on Sunday at 2 AM UTC.
+  Stores results as JSONL files for downstream processing.
+
+labels:
+  project: ols-research
+  component: collection
+
+triggers:
+  - id: weekly-schedule
+    type: io.kestra.plugin.core.trigger.Schedule
+    cron: "0 2 * * 0"
+
+inputs:
+  - id: domain
+    type: STRING
+    description: "Which domain to collect. Use 'all' for all domains."
+    defaults: "all"
+    enum:
+      - all
+      - psychology
+      - sociology
+      - environmentalism
+      - neuroscience
+  - id: max_pages_per_concept
+    type: INT
+    description: "Max pages to fetch per search concept (200 results/page)"
+    defaults: 5
+  - id: min_citations
+    type: INT
+    description: "Minimum citation count filter"
+    defaults: 10
+
+tasks:
+  - id: fetch-papers
+    type: io.kestra.plugin.scripts.python.Script
+    description: "Query OpenAlex API for papers in specified domain(s)"
+    containerImage: python:3.11-slim
+    beforeCommands:
+      - pip install requests
+    outputFiles:
+      - "output/*.jsonl"
+    script: |
+      import requests
+      import json
+      import time
+      import os
+
+      os.makedirs("output", exist_ok=True)
+
+      # Domain search configurations
+      DOMAIN_CONCEPTS = {
+          "psychology": [
+              "self-determination theory",
+              "intrinsic motivation",
+              "community psychology",
+              "prosocial behavior",
+              "well-being flourishing eudaimonia",
+              "behavioral change motivation",
+              "cooperation social psychology"
+          ],
+          "sociology": [
+              "mutual aid community",
+              "community organizing collective action",
+              "commons governance common pool resources",
+              "social capital community resilience",
+              "participatory democracy direct democracy",
+              "cooperative economics worker cooperative",
+              "social inequality stratification"
+          ],
+          "environmentalism": [
+              "degrowth post-growth",
+              "ecological economics steady state",
+              "planetary boundaries sustainability",
+              "environmental justice climate justice",
+              "agroecology food sovereignty",
+              "circular economy resource throughput",
+              "commons natural resources"
+          ],
+          "neuroscience": [
+              "social neuroscience social cognition",
+              "reward system motivation dopamine",
+              "intrinsic motivation neural brain fMRI",
+              "stress resilience neuroscience neuroplasticity",
+              "decision making social neuroscience",
+              "well-being neural brain correlates",
+              "exercise cognition brain health"
+          ]
+      }
+
+      domain_input = "{{ inputs.domain }}"
+      max_pages = int("{{ inputs.max_pages_per_concept }}")
+      min_citations = int("{{ inputs.min_citations }}")
+
+      if domain_input == "all":
+          domains_to_collect = list(DOMAIN_CONCEPTS.keys())
+      else:
+          domains_to_collect = [domain_input]
+
+      base_url = "https://api.openalex.org/works"
+      headers = {"mailto": "research@optimallivingsystems.org"}
+
+      for domain in domains_to_collect:
+          concepts = DOMAIN_CONCEPTS[domain]
+          output_file = f"output/{domain}_papers.jsonl"
+          paper_count = 0
+          seen_ids = set()
+
+          with open(output_file, 'w') as f:
+              for concept in concepts:
+                  page = 1
+                  while page <= max_pages:
+                      params = {
+                          "search": concept,
+                          "filter": f"cited_by_count:>{min_citations},publication_year:>2004,has_abstract:true",
+                          "sort": "cited_by_count:desc",
+                          "per_page": 200,
+                          "page": page
+                      }
+
+                      try:
+                          response = requests.get(base_url, params=params, headers=headers)
+                          if response.status_code != 200:
+                              print(f"  API error {response.status_code} for '{concept}' page {page}")
+                              break
+
+                          data = response.json()
+                          results = data.get("results", [])
+                          if not results:
+                              break
+
+                          for work in results:
+                              work_id = work.get("id", "")
+                              if work_id in seen_ids:
+                                  continue
+                              seen_ids.add(work_id)
+
+                              # Reconstruct abstract from inverted index
+                              abstract_inv = work.get("abstract_inverted_index", {})
+                              abstract = ""
+                              if isinstance(abstract_inv, dict) and abstract_inv:
+                                  words = {}
+                                  for word, positions in abstract_inv.items():
+                                      for pos in positions:
+                                          words[pos] = word
+                                  abstract = " ".join(words[k] for k in sorted(words.keys()))
+
+                              paper = {
+                                  "id": work_id,
+                                  "doi": work.get("doi", ""),
+                                  "title": work.get("title", ""),
+                                  "authors": [
+                                      a.get("author", {}).get("display_name", "")
+                                      for a in work.get("authorships", [])[:10]
+                                  ],
+                                  "year": work.get("publication_year"),
+                                  "journal": (work.get("primary_location") or {}).get("source", {}).get("display_name", "") if work.get("primary_location") else "",
+                                  "citation_count": work.get("cited_by_count", 0),
+                                  "abstract": abstract,
+                                  "open_access": work.get("open_access", {}).get("is_oa", False),
+                                  "oa_url": work.get("open_access", {}).get("oa_url", ""),
+                                  "concepts": [
+                                      c.get("display_name", "")
+                                      for c in work.get("concepts", [])[:10]
+                                  ],
+                                  "domain": domain,
+                                  "search_concept": concept,
+                                  "collected_date": time.strftime("%Y-%m-%d")
+                              }
+
+                              f.write(json.dumps(paper) + "\n")
+                              paper_count += 1
+
+                          page += 1
+                          time.sleep(0.1)  # Respect rate limits
+
+                      except Exception as e:
+                          print(f"  Error on '{concept}' page {page}: {e}")
+                          break
+
+                  print(f"  [{domain}] Concept '{concept}': collected so far = {paper_count}")
+
+          print(f"TOTAL [{domain}]: {paper_count} unique papers → {output_file}")
+
+  - id: log-summary
+    type: io.kestra.plugin.core.log.Log
+    message: |
+      OpenAlex collection complete.
+      Domain: {{ inputs.domain }}
+      Output files ready for processing pipeline.

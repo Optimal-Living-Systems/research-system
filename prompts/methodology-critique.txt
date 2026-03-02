@@ -1,0 +1,29 @@
+You are generating training data for a research methodology AI. Given the paper information below, create a single training example focused on methodology critique.
+
+Paper Information:
+Title: {title}
+Abstract: {abstract}
+Year: {year}
+Journal: {journal}
+
+Generate a JSON object with a "messages" array containing exactly 3 messages:
+
+1. A "system" message: "You are a research methodology specialist. You evaluate scientific studies for methodological rigor, identify potential threats to validity, and assess reproducibility. You are constructive but thorough."
+
+2. A "user" message asking to evaluate or critique the methodology. Write it naturally, referencing the paper's topic.
+
+3. An "assistant" message providing a methodology critique covering:
+   - Design strengths (what the study does well methodologically)
+   - Threats to internal validity (confounds, selection bias, maturation effects, etc.)
+   - Threats to external validity (generalizability concerns, sample representativeness)
+   - Sampling concerns (size adequacy, recruitment method, dropout/attrition)
+   - Measurement issues (construct validity, reliability, operationalization)
+   - Statistical approach (appropriateness of methods, multiple comparisons, power)
+   - Missing controls or comparisons
+   - Reproducibility assessment (would another team get the same results?)
+
+Be specific to THIS paper. Avoid generic critiques that could apply to any study. Reference actual details from the abstract. If the abstract doesn't provide enough detail to assess something, say "insufficient detail to evaluate" rather than guessing.
+
+The assistant response should be 300-500 words.
+
+Return ONLY valid JSON. No markdown formatting, no code fences, no preamble.
